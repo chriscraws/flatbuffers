@@ -10,13 +10,14 @@ type Builder struct {
 	// FinishedBytes() instead.
 	Bytes []byte
 
-	minalign  int
-	vtable    []UOffsetT
-	objectEnd UOffsetT
-	vtables   []UOffsetT
-	head      UOffsetT
-	nested    bool
-	finished  bool
+	minalign      int
+	vtable        []UOffsetT
+	objectEnd     UOffsetT
+	vtables       []UOffsetT
+	head          UOffsetT
+	nested        bool
+	finished      bool
+	forceDefaults bool
 
 	sharedStrings map[string]UOffsetT
 }
@@ -376,6 +377,13 @@ func (b *Builder) CreateByteVector(v []byte) UOffsetT {
 	return b.EndVector(len(v))
 }
 
+// ForceDefaults, if set to true, will cause default and zero values to be
+// encoded into the buffer for vtable fields, so that they can be mutated
+// later on.
+func (b *Builder) ForceDefaults(shouldForceDefaults bool) {
+	b.forceDefaults = shouldForceDefaults
+}
+
 func (b *Builder) assertNested() {
 	// If you get this assert, you're in an object while trying to write
 	// data that belongs outside of an object.
@@ -430,7 +438,7 @@ func (b *Builder) PrependBoolSlot(o int, x, d bool) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependByteSlot(o int, x, d byte) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependByte(x)
 		b.Slot(o)
 	}
@@ -440,7 +448,7 @@ func (b *Builder) PrependByteSlot(o int, x, d byte) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependUint8Slot(o int, x, d uint8) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependUint8(x)
 		b.Slot(o)
 	}
@@ -450,7 +458,7 @@ func (b *Builder) PrependUint8Slot(o int, x, d uint8) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependUint16Slot(o int, x, d uint16) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependUint16(x)
 		b.Slot(o)
 	}
@@ -460,7 +468,7 @@ func (b *Builder) PrependUint16Slot(o int, x, d uint16) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependUint32Slot(o int, x, d uint32) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependUint32(x)
 		b.Slot(o)
 	}
@@ -470,7 +478,7 @@ func (b *Builder) PrependUint32Slot(o int, x, d uint32) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependUint64Slot(o int, x, d uint64) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependUint64(x)
 		b.Slot(o)
 	}
@@ -480,7 +488,7 @@ func (b *Builder) PrependUint64Slot(o int, x, d uint64) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependInt8Slot(o int, x, d int8) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependInt8(x)
 		b.Slot(o)
 	}
@@ -490,7 +498,7 @@ func (b *Builder) PrependInt8Slot(o int, x, d int8) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependInt16Slot(o int, x, d int16) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependInt16(x)
 		b.Slot(o)
 	}
@@ -500,7 +508,7 @@ func (b *Builder) PrependInt16Slot(o int, x, d int16) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependInt32Slot(o int, x, d int32) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependInt32(x)
 		b.Slot(o)
 	}
@@ -510,7 +518,7 @@ func (b *Builder) PrependInt32Slot(o int, x, d int32) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependInt64Slot(o int, x, d int64) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependInt64(x)
 		b.Slot(o)
 	}
@@ -520,7 +528,7 @@ func (b *Builder) PrependInt64Slot(o int, x, d int64) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependFloat32Slot(o int, x, d float32) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependFloat32(x)
 		b.Slot(o)
 	}
@@ -530,7 +538,7 @@ func (b *Builder) PrependFloat32Slot(o int, x, d float32) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependFloat64Slot(o int, x, d float64) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependFloat64(x)
 		b.Slot(o)
 	}
@@ -540,7 +548,7 @@ func (b *Builder) PrependFloat64Slot(o int, x, d float64) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependUOffsetTSlot(o int, x, d UOffsetT) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.PrependUOffsetT(x)
 		b.Slot(o)
 	}
@@ -550,7 +558,7 @@ func (b *Builder) PrependUOffsetTSlot(o int, x, d UOffsetT) {
 // Structs are stored inline, so nothing additional is being added.
 // In generated code, `d` is always 0.
 func (b *Builder) PrependStructSlot(voffset int, x, d UOffsetT) {
-	if x != d {
+	if b.forceDefaults || x != d {
 		b.assertNested()
 		if x != b.Offset() {
 			panic("inline data write outside of object")
