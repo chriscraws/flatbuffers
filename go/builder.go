@@ -548,7 +548,7 @@ func (b *Builder) PrependFloat64Slot(o int, x, d float64) {
 // If value `x` equals default `d`, then the slot will be set to zero and no
 // other data will be written.
 func (b *Builder) PrependUOffsetTSlot(o int, x, d UOffsetT) {
-	if b.forceDefaults || x != d {
+	if x != d {
 		b.PrependUOffsetT(x)
 		b.Slot(o)
 	}
