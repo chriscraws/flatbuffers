@@ -18,6 +18,6 @@ go_library(
         "struct.go",
         "table.go",
     ],
-    importpath = "github.com/google/flatbuffers/go",
+    importpath = "github.com/chriscraws/flatbuffers/go",
     visibility = ["//visibility:public"],
 )
